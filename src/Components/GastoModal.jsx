@@ -1,30 +1,48 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import MensajeError from './MensajeError';
 import ImagenCross from"../img/cerrar.svg"
 
-const GastoModal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
+
+const GastoModal = ({
+    gastoEditar, 
+    setModal, 
+    animarModal, 
+    setAnimarModal, 
+    guardarGasto,
+    setGastoEditar}) => {
+
 
     const [nombre, setNombre] = useState('')
     const [cantidad, setCantidad] = useState('')
     const [categoria, setCategoria] = useState('')
+    const [fecha, setFecha] = useState('')
     const [mensaje, setMensaje] = useState('')
+    const [id, setId] = useState('')
 
+    useEffect(() => {
+        if(Object.keys(gastoEditar).length > 0) {
+            setNombre(gastoEditar.nombre)
+            setCantidad(gastoEditar.cantidad)
+            setCategoria(gastoEditar.categoria)
+            setId(gastoEditar.id)
+            setFecha(gastoEditar.fecha)
+          }
+    },[gastoEditar])
 
     const handleSubmit = (e) => {
         e.preventDefault()
         if([nombre, cantidad, categoria].includes('')) {
-           
             setMensaje("Todos los campos son obligatorios")
             return;
         }
-        guardarGasto({nombre, categoria, mensaje})
+
+        guardarGasto({nombre, categoria, cantidad, id, fecha})
     }
 
 
-    const cerrarModal = () => {
-        
-        setAnimarModal(false)
-
+    const cerrarModal = () => {   
+        setAnimarModal(false);
+        setGastoEditar(false)
         setTimeout(() => {
             setModal(false);
         }, 500)
@@ -41,7 +59,7 @@ const GastoModal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
         <form 
         onSubmit={handleSubmit}
         className={`formulario ${animarModal ? 'animar' : 'cerrar'}`}>
-            <legend> Nuego Gasto</legend>
+            <legend>{gastoEditar.nombre ? "Editar Gasto" : "Nuevo Gasto"}</legend>
             {mensaje && <MensajeError tipo='error'>Todos los campos son obligatorios</MensajeError>}
             <div className='campo'>
                 <label htmlFor="nombre">Nombre Gasto</label>
@@ -66,7 +84,7 @@ const GastoModal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
                 <select
                 id="categoria"
                 value={categoria}
-                onChange={(e) => { setCategoria(e.target.value)}}
+                onChange={(e) => {setCategoria(e.target.value)}}
                 >
                         <option value="">Seleccionar</option>
                         <option value="ahorro">Ahorro</option>
@@ -77,7 +95,7 @@ const GastoModal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
                         <option value="varios">Varios</option>
                 </select>
             </div>
-            <input type="submit" value="Añadir Gasto" />
+            <input type="submit" value={gastoEditar.nombre ? "Guardar Cambios" : "Agregar Gasto"} />
         </form>
     </div>
   )
